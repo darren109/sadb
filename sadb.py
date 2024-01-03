@@ -80,7 +80,7 @@ def main(adb_args):
         print("No command provided. Use -h or --help for usage information.")
         # subprocess.run([adb] + ['--help'])
         sys.exit(1)
-    
+
     local_cmds = {'-s', 'start-server', 'kill-server', 'disconnect', 'connect'}
     
     if adb_args[0] in local_cmds:
