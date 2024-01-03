@@ -77,18 +77,13 @@ def parse_device(device):
 
 def main(adb_args):
     if not adb_args:
-        # print("No command provided. Use -h or --help for usage information.")
-        # sys.exit(1)
-        subprocess.run([adb] + ['--help'])
-    elif adb_args[0] == '-s':
-        subprocess.run([adb] + adb_args)
-    elif adb_args[0] == 'start-server':
-        subprocess.run([adb] + adb_args)
-    elif adb_args[0] == 'kill-server':
-        subprocess.run([adb] + adb_args)
-    elif adb_args[0] == 'disconnect':
-        subprocess.run([adb] + adb_args)
-    elif adb_args[0] == 'connect':
+        print("No command provided. Use -h or --help for usage information.")
+        # subprocess.run([adb] + ['--help'])
+        sys.exit(1)
+    
+    local_cmds = {'-s', 'start-server', 'kill-server', 'disconnect', 'connect'}
+    
+    if adb_args[0] in local_cmds:
         subprocess.run([adb] + adb_args)
     elif adb_args[0] == 'devices':
         if len(adb_args) == 1:
