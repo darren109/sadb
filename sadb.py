@@ -28,9 +28,9 @@ def read_alias():
 def exec_adb(serial_number, adb_args):
     real_args = alias.get(adb_args[0], ' '.join(adb_args))
     cmd = f"{adb} -s {serial_number} {real_args}"
-    print(f"\n{c_green}{adb} {c_reset}-s {serial_number} {real_args}\n", file=sys.stderr)
+    print(f"{c_green}{adb} {c_reset}-s {serial_number} {real_args}", file=sys.stderr)
     subprocess.run(cmd, shell=True)
-    print("\n", file=sys.stderr)
+    # print("\n", file=sys.stderr)
 
 def choose_device(devices, adb_args):
     device_lines = devices.splitlines()[1:]  # Skip the first line which is a header
@@ -55,6 +55,10 @@ def print_devices(adb_args):
     devices = subprocess.getoutput(f"{adb} devices -l")
     device_count = len(devices.splitlines())
     device_lines = devices.splitlines()[1:]
+
+    if device_count <= 1:
+        print(f"No devices attached", file=sys.stderr)
+        sys.exit(1)
 
     if device_count <= 2:
         sn = parse_device(device_lines[0])['sn']

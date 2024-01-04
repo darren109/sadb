@@ -54,17 +54,17 @@ exec_adb() {
         real_args="${real_args} ${adb_args[@]:1}"
     fi
 
-    printf "\n${c_green}${adb} ${c_reset}-s ${args[0]} ${real_args}\n\n" >&2
+    printf "${c_green}${adb} ${c_reset}-s ${args[0]} ${real_args}\n" >&2
     ${adb} -s ${args[0]} ${real_args}
 
-    printf "\n" >&2
+    # printf "\n" >&2
 }
 
 choose_device() {
     local total_line num
     total_line=$(( device_count - 2 ))
 
-    printf "\n" >&2
+    # printf "\n" >&2
     local tips="More than one device/emulator, please select ${c_green}[0 .. ${total_line}]${c_reset} or ${c_green}[a/A]${c_reset}: "
 
     while :; do
@@ -87,7 +87,7 @@ print_devices() {
     device_count=$(wc -l <<< "$devices")
 
     if [ "$device_count" -eq 1 ]; then
-        printf "No devices attached \n\n"
+        printf "No devices attached \n"
         exit 0
     elif [ "$device_count" -eq 2 ]; then
         exec_adb
