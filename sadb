@@ -57,7 +57,7 @@ exec_adb() {
     printf "${c_green}${adb} ${c_reset}-s ${args[0]} ${real_args}\n" >&2
     ${adb} -s ${args[0]} ${real_args}
 
-    # printf "\n" >&2
+    printf "\n" >&2
 }
 
 choose_device() {
