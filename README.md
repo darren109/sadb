@@ -17,7 +17,11 @@ or
 git clone https://github.com/darren109/sadb.git ~/sadb
 sudo mv ~/sadb/sadb /usr/bin/ && sudo chmod a+x /usr/bin/sadb && rm -rf ~/sadb
 ```
-
+or
+```shell
+$ su
+$ curl https://raw.githubusercontent.com/darren109/sadb/main/install.sh | bash
+```
 and then add `alias adb="sadb"` to `~/.bashrc` or `~/.bash_profile`
 
 ## Requirements
