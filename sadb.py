@@ -85,7 +85,7 @@ def main(adb_args):
         # subprocess.run([adb] + ['--help'])
         sys.exit(1)
 
-    local_cmds = {'-s', 'start-server', 'kill-server', 'disconnect', 'connect'}
+    local_cmds = {'-s', 'start-server', 'kill-server', 'disconnect', 'connect', 'wait-for-device'}
     
     if adb_args[0] in local_cmds:
         subprocess.run([adb] + adb_args)

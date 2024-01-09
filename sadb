@@ -175,7 +175,7 @@ EOF
 main() {
     adb_args=("$@")
     case "$1" in
-        -s|start-server|kill-server|disconnect|connect)
+        -s|start-server|kill-server|disconnect|connect|wait-for-device)
             "${adb}" "${adb_args[@]}"
             ;;
         devices)
