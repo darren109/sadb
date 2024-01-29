@@ -78,7 +78,7 @@ exec_adb() {
     num=$(($1 + 2))
     device=$(sed -n "${num}p" <<< "$devices")
     args=(${device///})
-
+    
     real_args="${alias[${adb_args[0]}]}"
 
     if [[ -z "$real_args" ]]; then
@@ -220,6 +220,9 @@ main() {
             else
                 add_alias "$@"
             fi
+            ;;
+        '')
+            adb
             ;;
         *)
             print_devices
