@@ -32,16 +32,23 @@ and then add `alias adb="sadb"` to `~/.bashrc` or `~/.bash_profile`
 `bash`
 
 ```shell
+# linux
 $ sudo cp ./sadb-completion.bash /usr/share/bash-completion/completions/
+# mac os
+$ sudo cp ./sadb-completion.bash /usr/local/share/bash-completion/completions/
 ```
 
 `zsh` 
 
 ```shell
+# linux
 $ sudo cp ./sadb-completion.bash /usr/share/bash-completion/completions/
+# mac os
+$ sudo cp ./sadb-completion.bash /usr/local/share/bash-completion/completions/
+
+# zsh add config
 $ cd ~
 $ vim .zshrc
-
 # adding the following content to your .zshrc file.
 source /usr/share/bash-completion/completions/sadb-completion.bash
 ```
