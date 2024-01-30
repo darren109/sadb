@@ -178,7 +178,7 @@ EOF
 main() {
     adb_args=("$@")
     case "$1" in
-        -s|start-server|kill-server|disconnect|connect|wait-for-device)
+        -s|-p|-e|-d|start-server|kill-server|disconnect|connect|wait-for-device|help|keygen|version)
             "${adb}" "${adb_args[@]}"
             ;;
         devices)
@@ -187,9 +187,6 @@ main() {
             else
                 adb "${adb_args[@]}"
             fi
-            ;;
-        version)
-            adb "${adb_args[@]}"
             ;;
         alias)
             case "$2" in
