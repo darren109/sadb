@@ -84,11 +84,11 @@ exec_adb() {
 
     if [[ -z "$alias_args" ]]; then
 
-        printf "\n${c_green}%s ${c_reset}-s %s %s \n\n" "${adb}" "${args[0]}" "${adb_args[*]}">&2
+        printf "\n${c_green}%s ${c_reset}-s %s %s \n" "${adb}" "${args[0]}" "${adb_args[*]}">&2
         "${adb}" -s "${args[0]}" "${adb_args[@]}"
     else
 
-        printf "\n${c_green}%s ${c_reset}-s %s %s %s \n\n" "${adb}" "${args[0]}" "${alias_args}" "${adb_args[*]:1}">&2
+        printf "\n${c_green}%s ${c_reset}-s %s %s %s \n" "${adb}" "${args[0]}" "${alias_args}" "${adb_args[*]:1}">&2
         "${adb}" -s "${args[0]}" ${alias_args} "${adb_args[@]:1}"
     fi
 
