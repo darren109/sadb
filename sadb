@@ -12,6 +12,8 @@ declare -A dic_device
 declare -A alias
 nums=()
 
+active_device_num=-1
+
 [[ ! -e "${config}.alias" ]] && touch "${config}.alias"
 
 read_alias() {
@@ -96,6 +98,11 @@ exec_adb() {
 }
 
 choose_device() {
+    if [ $active_device_num -ne -1 ]; then
+        exec_adb "$active_device_num"
+        exit 0
+    fi
+
     local total_line input
     total_line=$(( device_count - 2 ))
 
@@ -130,16 +137,30 @@ print_devices() {
         exec_adb
         exit 0
     else
-        echo "$devices" | head -n 1 >&2
+        local active=$(echo $ACTIVE_DEVICE)
+        local details=("" "$(echo "$devices" | head -n 1)")
+        
         for line in $(seq 2 "$device_count"); do
             num=$(( line - 2 ))
             nums[$num]=$num
 
             parse_device "$(sed -n "${line}p" <<< "$devices")"
 
-            printf "${c_green}[ %d ]${c_reset} sn: %-20s ${c_reset}%-16s model: %-20s product: %-20s\n" \
-                "$num" "${dic_device[sn]}" "${dic_device[device_type]}" "${dic_device[model]}" "${dic_device[product]}" >&2
+            if [ "$active" = "${dic_device[sn]}" ]; then
+                active_device_num=$num
+                break
+            else
+                device=$(printf "${c_green}[ %d ]${c_reset} sn: %-20s ${c_reset}%-16s model: %-20s product: %-20s\n" \
+                "$num" "${dic_device[sn]}" "${dic_device[device_type]}" "${dic_device[model]}" "${dic_device[product]}")
+                details+=("$device")
+            fi
         done
+
+        if [ $active_device_num -eq -1 ]; then
+            for line in "${details[@]}"; do
+                printf "$line\n"
+            done
+        fi
 
         nums[${#nums[@]}]=a
         nums[${#nums[@]}]=A
@@ -166,6 +187,14 @@ print_exec_time() {
     printf "[ %s ]\n" "$_date">&2
 }
 
+set_active_device() {
+    printf "%s\n${c_green}%s\n" "Please copy and execute the following command:" "export ACTIVE_DEVICE=$1"
+}
+
+unset_active_device() {
+    printf "%s\n${c_green}%s\n" "Please copy and execute the following command:" "unset ACTIVE_DEVICE"
+}
+
 print_help() {
 cat << EOF
 Usage: 
@@ -177,6 +206,8 @@ Options:
     -l, --list          Print alias and exit.
     -r, --remove        Delete alias and exit.
     alias.[alias]       Set the alias and exit.
+    active              Set the current active device and exit.
+    active -d           Clear the environment variables and exit.
     [alias]             Print the alias named "alias" and exit.
 
 Example:
@@ -230,6 +261,16 @@ main() {
             else
                 add_alias "$@"
             fi
+            ;;
+        active)
+            case "$2" in
+                -d)
+                    unset_active_device
+                    ;;
+                *)
+                    set_active_device "$2"
+                    ;;
+            esac
             ;;
         '')
             adb
