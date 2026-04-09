@@ -14,15 +14,19 @@ _sadb_completion()
         uninstall unroot usb version wait-for-bootloader wait-for-device \
         wait-for-recovery wait-for-sideload alias active"
   cmds_not_need_device="connect devices disconnect help keygen kill-server \
-                        start-server version alias active"
+                        start-server version alias active pair reconnect mdns \
+                        host-features emu"
   subcommand=""
   device_selected=""
 
   # Find the real adb.
-  adb=$(which adb)
-  adb_paths=$(which -a adb)
+  adb=$(which adb 2>/dev/null)
+  adb_paths=$(which -a adb 2>/dev/null)
 
-  alias_cmds=$(awk -F '=' '{ print $1}' "${HOME}/.config/sadb/.alias" | tr '\n' ' ')
+  alias_cmds=""
+  if [[ -f "${HOME}/.config/sadb/.alias" ]]; then
+    alias_cmds=$(grep -v '^[[:space:]]*#' "${HOME}/.config/sadb/.alias" | sed -n -e 's/^[[:space:]]*\([a-zA-Z0-9_-]*\)[[:space:]]*=.*$/\1/p' -e 's/^[[:space:]]*\([a-zA-Z0-9_-]*\)[[:space:]]*().*$/\1/p' | xargs)
+  fi
 
   read -r line1 <<< "$adb_paths"
   if [[ "$line1" == *"adb: aliased to"* ]]; then
@@ -166,10 +170,20 @@ _sadb_completion()
       fi
       ;;
     alias)
-      if [ ${prev} == "alias" ]; then
-        COMPREPLY=( $(compgen -W "-l --list -r --remove -h --help" -o filenames -- ${cur}) )
+      if [ "${prev}" == "alias" ]; then
+        COMPREPLY=( $(compgen -W "-l --list -r --remove -h --help" -- ${cur}) )
+      fi
+      ;;
+    active)
+      if [ "${prev}" == "active" ]; then
+        # Suggest device serials, -d (disconnect/unset), and -h (help)
+        local devices=$($adb devices | awk '/(device|recovery|sideload)$/{print $1}')
+        COMPREPLY=( $(compgen -W "-d -h $devices" -- ${cur}) )
       fi
       ;;
   esac
 }
+
 complete -o default -F _sadb_completion sadb
+# 尝试为 adb 也注册补全 (如果用户在 .bashrc 中设置了 alias adb=sadb，这会让补全生效)
+complete -o default -F _sadb_completion adb 2>/dev/null || true

@@ -1,71 +1,166 @@
-# sadb
+# 🚀 sadb (Smart ADB)
 
-+ Interactive adb: when connecting multiple devices, select 1, 2 or more devices to execute a command
-+ Support for setting alias (e.g. `adb alias.topActivity "shell dumpsys activity top | grep ACTIVITY"`)
-+ Support for execute alias (e.g. `adb topActivity`)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Bash Version](https://img.shields.io/badge/bash-%3E%3D%204.0-green.svg)](https://www.gnu.org/software/bash/)
 
-## Installation-sadb
+`sadb` is a powerful wrapper for Android Debug Bridge (`adb`) that simplifies multi-device management and command automation.
 
-```shell
-sudo su
-curl https://raw.githubusercontent.com/darren109/sadb/main/sadb > /usr/bin/sadb && sudo chmod a+x /usr/bin/sadb
-```
+## ✨ Key Features
 
-or
+- **📱 Smart Device Selection**: Automatically prompts for device selection when multiple devices are connected. Supports `fzf` for fuzzy searching.
+- **⚡ Batch Execution**: Run a single command on ALL connected devices simultaneously.
+- **🔗 Command Aliases**: Define short aliases for complex adb commands (e.g., `sadb alias log "logcat -v time"`).
+- **🛠️ Custom Methods**: Create powerful multi-line scripts combining `adb` and local shell commands with automatic device targeting.
+- **🎯 Active Device Lock**: Lock onto a specific device serial for the current session to skip selection prompts.
+- **🎨 Modern UI**: Beautifully formatted tables with status-based coloring and clear execution headers.
 
-```shell
-git clone https://github.com/darren109/sadb.git ~/sadb
-sudo mv ~/sadb/sadb /usr/bin/ && sudo chmod a+x /usr/bin/sadb && rm -rf ~/sadb
-```
+## 🚀 Installation
 
-or
+### Manual Installation
 
-```shell
-$ su
-$ curl https://raw.githubusercontent.com/darren109/sadb/main/install.sh | bash
-```
-
-and then add `alias adb="sadb"` to `~/.bashrc` or `~/.bash_profile`
-
-## Installation-sadb-completion
-
-`bash`
+#### 1. Install the Script
+Download the `sadb` script and set the execution permission:
 
 ```shell
-# linux
-$ sudo cp ./sadb-completion.bash /usr/share/bash-completion/completions/
-# mac os
-$ sudo cp ./sadb-completion.bash /usr/local/share/bash-completion/completions/
+# For system-wide install (requires sudo):
+sudo curl -L https://raw.githubusercontent.com/darren109/sadb/main/sadb -o /usr/local/bin/sadb
+sudo chmod +x /usr/local/bin/sadb
+
+# For user-only install (ensure ~/.local/bin is in your PATH):
+mkdir -p ~/.local/bin
+curl -L https://raw.githubusercontent.com/darren109/sadb/main/sadb -o ~/.local/bin/sadb
+chmod +x ~/.local/bin/sadb
 ```
 
-`zsh` 
+#### 2. Install Shell Completion
+Download the completion script and load it in your shell configuration:
 
+**For Bash:**
+1. Download the script:
+   ```shell
+   mkdir -p ~/.config/sadb
+   curl -L https://raw.githubusercontent.com/UncleBrook/sadb/main/sadb-completion.bash -o ~/.config/sadb/sadb-completion.bash
+   ```
+2. Add the following to your `~/.bashrc`:
+   ```shell
+   [[ -f ~/.config/sadb/sadb-completion.bash ]] && source ~/.config/sadb/sadb-completion.bash
+   ```
+
+**For Zsh:**
+1. Download the script:
+   ```shell
+   mkdir -p ~/.config/sadb
+   curl -L https://raw.githubusercontent.com/UncleBrook/sadb/main/sadb-completion.bash -o ~/.config/sadb/sadb-completion.bash
+   ```
+2. Add the following to your `~/.zshrc`:
+   ```zsh
+   autoload -Uz bashcompinit && bashcompinit
+   source ~/.config/sadb/sadb-completion.bash
+   ```
+
+#### 3. Add Alias (Recommended)
+Add an alias to your shell configuration (`~/.bashrc` or `~/.zshrc`) to use `sadb` as a drop-in replacement for `adb`:
 ```shell
-# linux
-$ sudo cp ./sadb-completion.bash /usr/share/bash-completion/completions/
-# mac os
-$ sudo cp ./sadb-completion.bash /usr/local/share/bash-completion/completions/
-
-# zsh add config
-$ cd ~
-$ vim .zshrc
-# adding the following content to your .zshrc file.
-source /usr/share/bash-completion/completions/sadb-completion.bash
+alias adb="sadb"
 ```
 
-## Requirements
+### Quick Install (Automated)
+If you prefer an automated setup, use the installation script which handles everything above for you:
+```shell
+curl -s https://raw.githubusercontent.com/darren109/sadb/main/install.sh | bash
+```
 
-+ `bash` version needs to be greater than v3.2
-  > 1. `declare -A` is not supported before v3.2
-  > 2. `bash --version` to view bash version
-  >
+## 📖 Commands Reference
 
-## To-do
+`sadb` supports all standard `adb` commands and adds several powerful management features.
 
-- [X] Select a device to execute a command
-- [X] Setting alias (e.g. `adb alias.ws "shell wm size"`)
+### 🧩 Alias Management
+The `alias` command allows you to manage short commands and complex methods.
 
-## Demo
+| Command | Description |
+| :--- | :--- |
+| `sadb alias -l -s [mode]` | List and sort aliases/methods (`a\|alpha`, `r\|reverse`, `l\|length`) |
+| `sadb alias -r <key>` | Remove a specific alias or method |
+| `sadb alias -h`, `--help` | Display detailed help for the alias command |
+| `sadb alias <key> <value>` | Add or update a command alias |
+| `sadb alias.<key> <value>` | Shorthand to add a command alias |
+| `sadb alias <key>` | Show the definition of a specific alias |
 
-[![Demo of the sadb script](https://i.ytimg.com/vi/GebidcL_W64/maxresdefault.jpg)](https://www.youtube.com/watch?v=GebidcL_W64 "Demo of the sadb script")
+### 🎯 Active Device Control
+Set an active device for the **current terminal session only**. This avoids selection prompts without affecting other windows.
 
+| Command | Description |
+| :--- | :--- |
+| `sadb active` | Trigger interactive selection (or auto-select if only one device is connected) |
+| `sadb active <serial>` | Lock the current session to a specific device serial |
+| `sadb active -d` | Unlock and return to interactive selection mode |
+| `sadb active -h` | Display detailed help for the active command |
+
+### 📱 Beautified Device List
+`sadb` provides a modern, color-coded table for listing devices. Active devices for the current session are highlighted in yellow.
+
+| Command | Description |
+| :--- | :--- |
+| `sadb devices` | List connected devices in a beautified table and highlight the active device |
+
+### ⚙️ Standard ADB Passthrough
+Commands like `start-server`, `kill-server`, `connect`, `pair`, `version`, etc., are passed directly to the original `adb` binary.
+
+## 💡 Usage Examples
+
+### Interactive Selection
+If multiple devices are connected, simply run any adb command:
+```shell
+sadb shell
+```
+*If `fzf` is installed, you can search and select your device instantly.*
+
+### Active Device Management
+```shell
+sadb active          # Select a device to lock onto for this terminal session
+sadb devices         # See the list with the active device highlighted
+sadb active -d       # Unlock and return to interactive selection mode
+```
+
+### Aliases
+```shell
+# Create an alias
+sadb alias ws "wm size"
+
+# Use it
+sadb ws
+```
+
+### Methods (Automation)
+Define complex workflows in `~/.config/sadb/.alias`:
+```bash
+# Example Method
+my_workflow() {
+    local scale=$1
+    echo "Starting workflow..."
+    adb shell settings put global window_animation_scale $scale
+    adb shell settings put global transition_animation_scale $scale
+    adb shell settings put global animator_duration_scale $scale
+    echo "Workflow complete!"
+}
+```
+*`sadb` automatically injects `ANDROID_SERIAL`, so you don't need `-s` inside methods.*
+
+## 📋 Requirements
+- **Bash v4.0+** (Required for associative arrays)
+- **adb** (Android SDK Platform-Tools)
+- **fzf** (Optional, for better interactive experience)
+
+## 🎥 Demo
+
+### 📱 Smart Device Selection & Beautified List
+![devices demo](examples/devices.gif)
+
+### 🔗 Command Aliases & Methods
+![alias demo](examples/alias.gif)
+
+### ⚡ Interactive Usage & Execution
+![execute demo](examples/excute.gif)
+
+## 📄 License
+This project is licensed under the [Apache License 2.0](LICENSE).
