@@ -249,8 +249,9 @@ choose_device() {
                 for s in "${nums[@]}"; do [[ "$s" =~ [0-9]+ ]] && exec_adb "$s"; done
                 exit 0
             else
-                local num=$(echo "$choice" | grep -oP "\[ \K[0-9]+(?= \])")
-                [[ -n "$num" ]] && { exec_adb "$num"; exit 0; }
+                if [[ "$choice" =~ \[\ ([0-9]+)\ \] ]]; then
+                    exec_adb "${BASH_REMATCH[1]}"; exit 0
+                fi
             fi
         else
             print_list=true
