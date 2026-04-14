@@ -243,7 +243,7 @@ choose_device() {
     # 1. 默认使用 fzf (如果已安装)
     if command -v fzf >/dev/null 2>&1; then
         local choice
-        choice=$(printf "%s\n" "${details[@]:1}" | fzf --header="${details[0]}" --ansi --prompt="📱 Select device: " --height=40% --layout=reverse --border)
+        choice=$(printf "%s\n" "${details[@]:1}" | fzf --header="${details[0]}" --ansi --prompt="Select device: " --height=40% --layout=reverse --border)
         if [[ -n "$choice" ]]; then
             if [[ "$choice" == *"[ a ]"* ]]; then
                 for s in "${nums[@]}"; do [[ "$s" =~ [0-9]+ ]] && exec_adb "$s"; done
