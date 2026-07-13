@@ -205,10 +205,12 @@ exec_adb() {
     local method_body="${methods[$cmd_key]}"
     local alias_args="${alias[$cmd_key]}"
 
-    # 在每个设备的标题前打印标题
-    [[ "$FIRST_EXEC" == "false" ]] && printf "\n" >&2
-    printf "${c_gray}--- %s (%s) ---${c_reset}\n" "$sn" "$model" >&2
-    FIRST_EXEC=false
+    # 在每个设备的标题前打印标题（锁定设备时已在顶部提示，故省略）
+    if [[ $active_device_num -eq -1 ]]; then
+        [[ "$FIRST_EXEC" == "false" ]] && printf "\n" >&2
+        printf "${c_gray}--- %s (%s) ---${c_reset}\n" "$sn" "$model" >&2
+        FIRST_EXEC=false
+    fi
 
     if [[ -n "$method_body" ]]; then
         printf "${c_gray}> Method: %s${c_reset}\n" "$cmd_key" >&2
@@ -266,7 +268,29 @@ choose_device() {
     fi
 
     while :; do
-        [[ -z "$input" ]] && read -r input
+        if [[ -z "$input" ]]; then
+            # Read first character individually to detect ESC key
+            IFS= read -r -s -n 1 first 2>/dev/null
+            if [[ "$first" == $'\e' ]]; then
+                printf "\n" >&2
+                exit 0
+            fi
+            # q/Q to quit
+            if [[ "$first" == "q" || "$first" == "Q" ]]; then
+                printf "q\n" >&2
+                exit 0
+            fi
+            # Empty input (Enter pressed alone) — reprompt
+            if [[ "$first" == $'\n' || -z "$first" ]]; then
+                printf "\n" >&2
+                echo -n "$tips" >&2
+                continue
+            fi
+            # Echo the character back (suppressed by -s) and read the rest of line
+            printf "%s" "$first"
+            IFS= read -r rest
+            input="${first}${rest}"
+        fi
         if [[ " ${nums[*]} " == *" ${input} "* ]]; then
             if [[ "$input" == [aA] ]]; then
                 for s in "${nums[@]}"; do [[ "$s" =~ [0-9]+ ]] && exec_adb "$s"; done
@@ -381,7 +405,16 @@ parse_device() {
 }
 
 print_exec_time() {
-    printf "${c_gray}[ $(date "+%Y-%m-%d %H:%M:%S") ]${c_reset}\n\n" >&2
+    printf "${c_gray}[ $(date "+%Y-%m-%d %H:%M:%S") ]${c_reset}\n" >&2
+    # 提示当前会话锁定的活动设备（若存在）
+    local session_config="/tmp/sadb_active_${USER}_${PPID}"
+    local active="${ACTIVE_DEVICE}"
+    [[ -z "$active" && -f "$session_config" ]] && active=$(cat "$session_config")
+    if [[ -n "$active" ]]; then
+        printf "${c_gray}🔒 Active: %s${c_reset}\n\n" "$active" >&2
+    else
+        printf "\n" >&2
+    fi
 }
 
 set_active_device() {
